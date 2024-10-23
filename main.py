@@ -37,17 +37,20 @@ def main():
         source_path = Path(path).resolve()
 
         if source_path.is_file():
-            # Backup single file to BACKUP_DIR
+            # Backup single file
             backup_manager.backup_file(source_path, source_path.parent)
         elif source_path.is_dir():
-            # Backup all files in the directory to BACKUP_DIR
+            # Backup all files in the directory
             files_to_backup = scan_directory(source_path)
             for file_path in files_to_backup:
                 backup_manager.backup_file(file_path, source_path)
+
+            # After backing up, remove files that were deleted in the source
+            backup_manager.remove_deleted_backups(source_path)
         else:
             print(f"Warning: {source_path} is not a valid file or directory.")
 
-    # Backup the in-memory database to disk in DATABASE_DIR before exiting
+    # Backup the in-memory database to disk before exiting
     db_manager.backup_to_disk()
 
     # Close the database connection
